@@ -1,0 +1,61 @@
+#include "DancingLeprechaun.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/InputComponent.h"
+#include "Animation/AnimInstance.h"
+
+// Constructor
+ADancingLeprechaun::ADancingLeprechaun() {
+    // Enable Character Movement
+    GetCharacterMovement()->bOrientRotationToMovement = true;
+    GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+
+    // Set Default Dance Animation
+    DanceAnimation = nullptr;
+}
+
+// BeginPlay is called when the game starts
+void ADancingLeprechaun::BeginPlay() {
+    Super::BeginPlay();
+}
+
+// Setup Input Bindings
+void ADancingLeprechaun::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+    // Bind Jump
+    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+    PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+    // Bind Dance Action
+    PlayerInputComponent->BindAction("Dance", IE_Pressed, this, &ADancingLeprechaun::Dance);
+
+    // Bind Movement
+    PlayerInputComponent->BindAxis("MoveForward", this, &ADancingLeprechaun::MoveForward);
+    PlayerInputComponent->BindAxis("MoveRight", this, &ADancingLeprechaun::MoveRight);
+}
+
+// Movement: Forward/Backward
+void ADancingLeprechaun::MoveForward(float Value) {
+    if (Controller && Value != 0.0f) {
+        // Add Movement Input
+        AddMovementInput(GetActorForwardVector(), Value);
+    }
+}
+
+// Movement: Right/Left
+void ADancingLeprechaun::MoveRight(float Value) {
+    if (Controller && Value != 0.0f) {
+        // Add Movement Input
+        AddMovementInput(GetActorRightVector(), Value);
+    }
+}
+
+// Trigger Dance Animation
+void ADancingLeprechaun::Dance() {
+    if (DanceAnimation) {
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+        if (AnimInstance) {
+            AnimInstance->Montage_Play(DanceAnimation, 1.0f);
+        }
+    }
+}
